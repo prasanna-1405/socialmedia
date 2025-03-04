@@ -1,0 +1,46 @@
+ function showHome() {
+    let name=document.getElementById("user");
+    let selectedName = name.options[name.selectedIndex].text;
+    let str = `
+    <div class='d-flex flex-column min-vh-100'>
+      <header class='bg-primary text-white text-center p-3'>
+        <div class='d-flex justify-content-between'>
+          <div>Welcome to My Social Media</div>
+          <div>${selectedName}</div>
+        </div>
+      </header>
+      <div class='d-flex flex-grow-1'>
+        <div class='p-3 bg-light' style="width: 200px;">
+          <p>Home</p>
+          <p>Album</p>
+          <p class='text-danger' style="cursor: pointer;" onclick='showLogin()'>Logout</p>
+        </div>
+        <div class='p-3 flex-grow-1'>Content </div>
+      </div>
+      <footer class='bg-dark text-light text-center p-1 mt-auto'>
+        <p>&copy; 2025. All rights reserved.</p>
+      </footer>
+      </div>
+    `;
+    root.innerHTML = str;
+  }
+
+
+
+  function showPosts(id) {
+  fetch(`https://jsonplaceholder.typicode.com/posts?userId=${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      let postStr = "<ul class='list-group'>";
+      data.forEach((post) => {
+        postStr += `
+          <li class='list-group-item'>
+            <h5>${post.title}</h5>
+            <p>${post.body}</p>
+          </li>`;
+      });
+      postStr += "</ul>";
+      document.getElementById("posts").innerHTML = postStr;
+    })
+    .catch((err) => console.log(err));
+}
