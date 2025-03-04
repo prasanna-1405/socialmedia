@@ -7,41 +7,62 @@ function showLogin() {
 }
 function getuserInfo() {}
 
+function showProfile(id) {
+    fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        let str = `
+          <h3>${data.name}'s Profile</h3>
+          <div class="card p-3">
+            <p><b>Name:</b> ${data.name}</p>
+            <p><b>Email:</b> ${data.email}</p>
+            <p><b>Phone:</b> ${data.phone}</p>
+            <p><b>Website:</b> <a href="http://${data.website}" target="_blank">${data.website}</a></p>
+            <p><b>Company:</b> ${data.company.name}</p>
+            <p><b>Address:</b> ${data.address.street}, ${data.address.city}</p>
+          </div>
+        `;
+        document.getElementById("main-content").innerHTML = str; // ✅ Fix: Use correct ID
+      })
+      .catch((err) => console.log(err));
+}
 
-function showAlbums(userId) {
+  function showAlbums(userId, userName) {
     fetch(`https://jsonplaceholder.typicode.com/albums?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        let albumHtml = data.length ? data.map(album => `
-          <div class="card p-2 m-2">
-            <h5>${album.title}</h5>
-          </div>
-        `).join('') : `<p>No albums found.</p>`;
-        document.getElementById("albums-container").innerHTML = `
-          <h3>Albums:</h3>
-          <div id="albums">${albumHtml}</div>
+        let albumHtml = `
+          <h3>${userName}'s Albums</h3>
+          ${data.length ? data.map(album => `
+            <div class="card p-2 m-2">
+              <h5>${album.title}</h5>
+            </div>
+          `).join('') : `<p>No albums found.</p>`}
         `;
+        document.getElementById("main-content").innerHTML = albumHtml;
       })
       .catch(err => console.log("Error loading albums:", err));
-}
-
-
-function showPosts(userId) {
+  }
+  
+  function showPosts(userId, userName) {
     fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        document.getElementById("posts").innerHTML = data
-          .map(post => `
+        let postHtml = `
+          <h3>${userName}'s Posts</h3>
+          ${data.map(post => `
             <div class="card p-2 m-2">
               <h5>${post.title}</h5>
               <p>${post.body}</p>
             </div>
-          `)
-          .join('');
+          `).join('')}
+        `;
+        document.getElementById("main-content").innerHTML = postHtml;
       })
       .catch(err => console.log("Error loading posts:", err));
   }
-  function showHome() {
+  
+function showHome() {
     let name = document.getElementById("user");
     let selectedName = name.options[name.selectedIndex].text;
     let userId = name.value;
@@ -56,15 +77,13 @@ function showPosts(userId) {
         </header>
         <div class='d-flex flex-grow-1'>
           <div class='p-3 bg-light' style="width: 200px;">
-            <p class='text-primary' style="cursor:pointer;" onclick="showPosts(${userId})">Home</p>
-            <p class='text-primary' style="cursor:pointer;" onclick="showAlbums(${userId})">Albums</p>
-            <p class='text-primary'>Profile</p>
+            <p class='text-primary' style="cursor:pointer;" onclick="showPosts(${userId}, '${selectedName}')">Home</p>
+            <p class='text-primary' style="cursor:pointer;" onclick="showAlbums(${userId}, '${selectedName}')">Albums</p>
+            <p class='text-primary' style="cursor:pointer;" onclick="showProfile(${userId})">Profile</p>
             <p class='text-danger' style="cursor: pointer;" onclick='showLogin()'>Logout</p>
           </div>
-          <div class='p-3 flex-grow-1'>
-            <h3>${selectedName}'s Posts:</h3>
-            <div id="posts"></div>
-            <div id="albums-container" class="mt-4"></div>  <!-- Albums section added but initially empty -->
+          <div class='p-3 flex-grow-1' id="main-content">
+            <h3>${selectedName}!</h3>
           </div>
         </div>
         <footer class='bg-dark text-light text-center p-1 mt-auto'>
@@ -72,10 +91,10 @@ function showPosts(userId) {
         </footer>
       </div>
     `;
-
+  
     root.innerHTML = str;
-    showPosts(userId);  // Only show posts initially, NOT albums
-}
+  }
+  
 
 function displayUsers(data) {
   let str = `
